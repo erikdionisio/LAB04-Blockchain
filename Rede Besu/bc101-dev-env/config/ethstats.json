@@ -1,0 +1,67 @@
+[
+    {
+      "name"              : "besu01",
+      "script"            : "app.js",
+      "log_date_format"   : "YYYY-MM-DD HH:mm Z",
+      "merge_logs"        : false,
+      "watch"             : true,
+      "max_restarts"      : 10,
+      "exec_interpreter"  : "node",
+      "exec_mode"         : "fork_mode",
+      "env":
+      {
+        "NODE_ENV"        : "production",
+        "RPC_HOST"        : "besu01",
+        "RPC_PORT"        : "11001",
+        "LISTENING_PORT"  : "30303",
+        "INSTANCE_NAME"   : "besu01",
+        "WS_SERVER"       : "ws://dashboard:3000",
+        "WS_SECRET"       : "secret",
+        "VERBOSITY"       : 3
+      }
+    },
+    {
+      "name"              : "besu02",
+      "script"            : "app.js",
+      "log_date_format"   : "YYYY-MM-DD HH:mm Z",
+      "merge_logs"        : false,
+      "watch"             : true,
+      "max_restarts"      : 10,
+      "exec_interpreter"  : "node",
+      "exec_mode"         : "fork_mode",
+      "env":
+      {
+        "NODE_ENV"        : "production",
+        "RPC_HOST"        : "besu02",
+        "RPC_PORT"        : "11002",
+        "LISTENING_PORT"  : "30303",
+        "INSTANCE_NAME"   : "besu02",
+        "WS_SERVER"       : "ws://dashboard:3000",
+        "WS_SECRET"       : "secret",
+        "VERBOSITY"       : 3
+      }
+    },
+    {
+      "name"              : "besu03",
+      "script"            : "app.js",
+      "log_date_format"   : "YYYY-MM-DD HH:mm Z",
+      "merge_logs"        : false,
+      "watch"             : true,
+      "max_restarts"      : 10,
+      "exec_interpreter"  : "node",
+      "exec_mode"         : "fork_mode",
+      "env":
+      {
+        "NODE_ENV"        : "production",
+        "RPC_HOST"        : "besu03",
+        "RPC_PORT"        : "11003",
+        "LISTENING_PORT"  : "30303",
+        "INSTANCE_NAME"   : "besu03",
+        "WS_SERVER"       : "ws://dashboard:3000",
+        "WS_SECRET"       : "secret",
+        "VERBOSITY"       : 3
+      }
+    } 
+  
+  ]
+  

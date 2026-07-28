@@ -1,0 +1,148 @@
+services:
+  besu01:
+    extends:
+      file: ./besu.yaml
+      service: besu01
+    environment:
+      - BESU_P2P_HOST=10.10.100.11
+      - HOSTNAME=besu01.bc.ufcg.net
+    networks:
+      bc-net:
+        ipv4_address: 10.10.100.11
+    ports:
+      - "11001:8545"
+      # - "30303:30303"
+      # - "9545:9545"
+
+  besu02:
+    extends:
+      file: ./besu.yaml
+      service: besu02
+    environment:
+      - BESU_P2P_HOST=10.10.100.12
+      - HOSTNAME=besu02.bc.ufcg.net
+    networks:
+      bc-net:
+        ipv4_address: 10.10.100.12
+    ports:
+      - "11002:8545"
+
+
+  besu03:
+    extends:
+      file: ./besu.yaml
+      service: besu03
+    environment:
+      - BESU_P2P_HOST=10.10.100.13
+      - HOSTNAME=besu03.bc.ufcg.net
+    networks:
+      bc-net:
+        ipv4_address: 10.10.100.13
+    ports:
+      - "11003:8545"
+
+  # mesma coisa para besu02, besu03
+
+  rpcnode:
+    extends:
+      file: ./besu.yaml
+      service: rpcnode
+    environment:
+      - BESU_P2P_HOST=10.10.100.15
+      - HOSTNAME=rpcnode.bc.ufcg.net
+    networks:
+      bc-net:
+        ipv4_address: 10.10.100.15
+    ports:
+      - "8545:8545"
+      - "8546:8546"
+      - "30303:30303"
+      - "9545:9545"
+
+  explorer:
+    extends:
+      file: ./besu.yaml
+      service: explorer
+    networks:
+      bc-net:
+        ipv4_address: 10.10.100.51
+    ports:
+      - "5000:80"
+
+networks:
+  bc-net:
+    name: bc-net
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.10.100.0/24
+
+# version: '3.6'
+
+# services:
+
+#   ###
+#   ### Blockchain 
+#   ###
+#   ### docker compose --profile blockchain up -d
+#   ### docker compose --profile blockchain down
+#   besu01:
+#     extends:
+#       file: ./besu.yaml
+#       service: besu01
+#     environment:
+#       - BESU_P2P_HOST=10.10.100.11
+#     networks:
+#       bc-net:
+#         ipv4_address: 10.10.100.11
+#     ports:
+#       - "11001:8545"
+
+#   besu02:
+#     extends:
+#       file: ./besu.yaml
+#       service: besu02
+#     environment:
+#       - BESU_P2P_HOST=10.10.100.12
+#     networks:
+#       bc-net:
+#         ipv4_address: 10.10.100.12
+#     ports:
+#       - "11002:8545"
+
+#   besu03:
+#     extends:
+#       file: ./besu.yaml
+#       service: besu03
+#     environment:
+#       - BESU_P2P_HOST=10.10.100.13
+#     networks:
+#       bc-net:
+#         ipv4_address: 10.10.100.13
+#     ports:
+#       - "11003:8545"
+
+#   rpcnode:
+#     extends:
+#       file: ./besu.yaml
+#       service: rpcnode
+#     environment:
+#       - BESU_P2P_HOST=10.10.100.15
+#     networks:
+#       bc-net:
+#         ipv4_address: 10.10.100.15
+#     ports:
+#       - "8545:8545"
+#       - "8546:8546"
+  
+#   explorer:
+#     extends:
+#       file: ./besu.yaml
+#       service: explorer
+#     networks:
+#       bc-net:
+#         ipv4_address: 10.10.100.51
+#     ports:
+#       - "5000:80"
+
+

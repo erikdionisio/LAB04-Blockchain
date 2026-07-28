@@ -1,0 +1,113 @@
+version: '3.6'
+
+# bloco base que contém tudo o que é comum (imagem, entrypoint, volumes, vars de HTTP/WS-RPC etc)
+x-besu-def: 
+  &besu-def
+  image: hyperledger/besu:${BESU_VERSION}
+  restart: on-failure
+  environment:
+    &besu-def-env
+    # Log4j
+    - LOG4J_CONFIGURATION_FILE=/config/log-config.xml
+
+    # HTTP-RPC
+    - BESU_RPC_HTTP_ENABLED=true
+    - BESU_RPC_HTTP_HOST=0.0.0.0
+    - BESU_RPC_HTTP_PORT=8545
+    - BESU_RPC_HTTP_CORS_ORIGINS=*
+    # APIs expostas (padrão ETH,NET,WEB3 + extras)
+    - BESU_RPC_HTTP_API=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,PERM,${CONSENSUS_ALGO}
+
+    # WS-RPC (opcional)
+    - BESU_RPC_WS_ENABLED=true
+    - BESU_RPC_WS_HOST=0.0.0.0
+    - BESU_RPC_WS_PORT=8546
+    - BESU_RPC_WS_API=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,PERM,${CONSENSUS_ALGO}
+
+    # demais configurações genéricas
+    - BESU_MIN_GAS_PRICE=${BESU_MIN_GAS_PRICE}
+    - BESU_HOST_ALLOWLIST=*
+    - BESU_DATA_PATH=/opt/besu/data
+    - BESU_ETHSTATS_CONTACT=${BESU_ETHSTATS_CONTACT}
+
+  volumes:
+    - ./config/besu/:/config
+    - ./nodes/${HOSTNAME}/keys:/opt/besu/keys
+    - ./nodes/${HOSTNAME}/data:/opt/besu/data
+    - ./nodes/${HOSTNAME}/logs:/tmp/besu
+
+  entrypoint:
+    - /opt/besu/bin/besu
+    - --config-file=/config/config.toml
+    - --node-private-key-file=/opt/besu/keys/key
+
+
+services:
+
+  # nó validador #1
+  besu01:
+    <<: *besu-def
+    container_name: besu01.bc.ufcg.net
+    environment:
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=besu01,service.version=${BESU_VERSION}
+    volumes:
+      - ./config/besu/:/config
+      - ./nodes/besu01/logs:/tmp/besu
+      # - ./logs/besu:/tmp/besu
+      #besu keys
+      - ./nodes/besu01/keys:/opt/besu/keys
+      #besu data
+      # - besu_01_data:/opt/data
+      - ./nodes/besu01/data:/opt/data
+
+  # nó validador #2
+  besu02:
+    <<: *besu-def
+    container_name: besu02.bc.ufcg.net
+    environment:
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=besu02,service.version=${BESU_VERSION}
+    volumes:
+      - ./config/besu/:/config
+      - ./nodes/besu01/logs:/tmp/besu
+      #besu keys
+      - ./nodes/besu02/keys:/opt/besu/keys
+      #besu data
+      - ./nodes/besu02/data:/opt/data
+      # - besu_02_data:/opt/data
+
+  # nó validador #3
+  besu03:
+    <<: *besu-def
+    container_name: besu03.bc.ufcg.net
+    environment:
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=besu03,service.version=${BESU_VERSION}
+    volumes:
+      - ./config/besu/:/config
+      - ./nodes/besu01/logs:/tmp/besu
+      # besu keys
+      - ./nodes/besu03/keys:/opt/besu/keys
+      # besu data
+      - ./nodes/besu03/data:/opt/data
+
+  # nó dedicado só a expor RPC/WS
+  rpcnode:
+    <<: *besu-def
+    container_name: rpcnode.bc.ufcg.net
+    environment:
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=rpcnode,service.version=${BESU_VERSION}
+    volumes:
+      - ./config/besu/:/config
+      - ./nodes/besu01/logs:/tmp/besu
+      - ./nodes/rpcnode/keys:/opt/besu/keys
+    depends_on:
+      - besu01
+      - besu02
+      - besu03
+
+  # explorer leve, aponta para o rpcnode
+  explorer:
+    image: local/block-explorer-light:dev
+    build: nodes/block-explorer-light
+    container_name: explorer.bc.ufcg.net
+    depends_on:
+      - rpcnode
