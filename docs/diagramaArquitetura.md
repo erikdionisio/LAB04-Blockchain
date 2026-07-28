@@ -1,3 +1,4 @@
+```
 flowchart LR
 
 P[Passageiro]
@@ -27,3 +28,4 @@ BC --> F
 SC -->|Pagamento automático| P
 
 SC -->|Registro de quitação| BC
+```
