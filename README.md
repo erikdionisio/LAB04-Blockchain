@@ -1,16 +1,23 @@
-# ✈️ Seguro Paramétrico de Voo - Guia de Execução
+# ✈️ Seguro Paramétrico de Voo (Prova de Conceito - PoC)
 
-Este repositório contém os contratos inteligentes e a interface frontend do projeto. Siga os passos abaixo para rodar a aplicação localmente.
+Projeto acadêmico focado na automação de seguros de atraso de voo utilizando **Smart Contracts**. Desenvolvido para a disciplina de Blockchain da UFCG.
 
-## 1. Pré-requisitos
-* **Node.js** (Versão 22 ou superior recomendada).
-* **Git**.
+O objetivo deste documento é guiar a execução e o teste completo do sistema em ordem cronológica.
 
-## 2. Instalação e Preparação
-Clone o repositório, instale as dependências (isso recriará a pasta `node_modules`) e compile o contrato inteligente (isso recriará a pasta `artifacts`).
+---
 
+## 👣 Passo a Passo para Execução e Testes
+
+Siga as etapas abaixo exatamente nesta ordem para compilar o código, testar o backend e interagir com o frontend.
+
+### Passo 1: Pré-requisitos
+Certifique-se de que sua máquina possui:
+* **Node.js** (Versão 22 ou superior recomendada)
+* **Git**
+
+### Passo 2: Clonagem e Instalação
+Abra o seu terminal e rode os comandos abaixo para baixar o código e instalar todas as dependências (`node_modules`):
 ```bash
 git clone <URL_DO_SEU_REPOSITORIO>
 cd LAB04-Blockchain
 npm install
-npx hardhat compile
