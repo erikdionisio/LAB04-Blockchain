@@ -1,40 +1,43 @@
 import { ethers } from "hardhat";
 
 async function main() {
+  console.log("✈️ Iniciando Simulação do Seguro Paramétrico...\n");
+
+  // Pegamos as contas padrão do Hardhat (que sempre existem e sempre têm saldo)
   const [airline, passenger] = await ethers.getSigners();
 
   // 1. Deploy do Contrato (Limiar: 2 horas, Pagamento: 1 ETH)
   const payoutAmount = ethers.parseEther("1.0");
   const Insurance = await ethers.getContractFactory("FlightInsurance");
-  const insurance = await Insurance.deploy(2, payoutAmount);
+  const insurance = await Insurance.deploy(2, payoutAmount) as any;
   await insurance.waitForDeployment();
   
-  console.log(`Contrato implantado em: ${await insurance.getAddress()}`);
+  console.log(`✅ Contrato implantado em: ${await insurance.getAddress()}`);
 
-  // 2. Depósito do Escrow pela Companhia Aérea
+  // 2. Depósito do Escrow
   const depositTx = await insurance.connect(airline).depositEscrow({ value: ethers.parseEther("5.0") });
   await depositTx.wait();
-  console.log("Escrow depositado pela companhia aérea (5.0 ETH).");
+  console.log("💰 Escrow depositado pela companhia aérea (5.0 ETH).");
 
-  // 3. Compra do Seguro pelo Passageiro para o voo "LA8100"
+  // 3. Compra do Seguro
   const flightId = "LA8100";
   const buyTx = await insurance.connect(passenger).buyInsurance(flightId);
   await buyTx.wait();
-  console.log(`Seguro registrado para o voo ${flightId} pelo passageiro: ${passenger.address}`);
+  console.log(`🎟️ Seguro registrado para o voo ${flightId} pelo passageiro: ${passenger.address}`);
 
-  // 4. Captura do saldo exato antes do atraso
+  // 4. Captura do saldo
   const balanceBefore = await ethers.provider.getBalance(passenger.address);
   
-  // 5. Oráculo reportando atraso (3 horas, o que aciona o payout pois 3 > 2)
-  console.log(`Oráculo reportando atraso de 3 horas para o voo ${flightId}...`);
+  // 5. Oráculo Simulando Atraso
+  console.log(`⏱️ Oráculo simulado reportando atraso de 3 horas para o voo ${flightId}...`);
   const delayTx = await insurance.reportDelay(flightId, 3);
   await delayTx.wait();
 
-  // 6. Verificação do pagamento automático sem arredondar valores
+  // 6. Verificação Final
   const balanceAfter = await ethers.provider.getBalance(passenger.address);
   const difference = ethers.formatEther(balanceAfter - balanceBefore);
   
-  console.log(`Pagamento executado! O saldo do passageiro aumentou em exatamente ${difference} ETH (valor bruto descontando as taxas de gas).`);
+  console.log(`🏁 Pagamento executado! O saldo do passageiro aumentou em exatamente ${difference} ETH.\n`);
 }
 
 main().catch((error) => {

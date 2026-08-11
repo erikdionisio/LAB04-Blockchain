@@ -1,25 +1,21 @@
-```
+# Diagrama de Classes - Seguro Paramétrico de Voo
+
 classDiagram
+    class FlightInsurance {
+        +address airline
+        +uint256 thresholdHours
+        +uint256 payoutAmount
+        +mapping(string => Policy) policies
+        +constructor(uint256 _thresholdHours, uint256 _payoutAmount)
+        +depositEscrow() void
+        +buyInsurance(string flightNumber) void
+        +reportDelay(string flightNumber, uint256 delayHours) void
+    }
 
-class FlightInsurance{
-    +address owner
-    +address oHardhatracle
-    +uint thresholdHours
-    +uint payoutAmount
-    +mapping insurances
+    class Policy {
+        +address passenger
+        +bool isActive
+        +bool isSettled
+    }
 
-    +depositEscrow()
-    +buyInsurance()
-    +reportDelay()
-    +executePayout()
-    +generateSettlement()
-}
-
-class FlightOracle{
-    +mapping delays
-    +updateFlightDelay()
-    +getDelay()
-}
-
-FlightOracle --> FlightInsurance : envia atraso
-```
+    FlightInsurance "1" *-- "many" Policy : armazena

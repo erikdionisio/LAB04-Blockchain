@@ -9,7 +9,7 @@ contract FlightInsurance {
     struct Policy {
         address passenger;
         bool isActive;
-        bool isSettled; // Termo de quitação
+        bool isSettled;
     }
 
     mapping(string => Policy) public policies;
@@ -24,13 +24,11 @@ contract FlightInsurance {
         payoutAmount = _payoutAmount;
     }
 
-    // 1. Implementação de escrow (depósito pela companhia aérea)
     function depositEscrow() external payable {
         require(msg.sender == airline, "Only airline can deposit");
         emit EscrowDeposited(msg.value);
     }
 
-    // 2. Registro do passageiro
     function buyInsurance(string memory flightNumber) external {
         policies[flightNumber] = Policy({
             passenger: msg.sender,
@@ -40,15 +38,13 @@ contract FlightInsurance {
         emit InsurancePurchased(flightNumber, msg.sender);
     }
 
-    // 3. Lógica paramétrica e oráculo simulado
     function reportDelay(string memory flightNumber, uint256 delayHours) external {
         Policy storage policy = policies[flightNumber];
         require(policy.isActive, "Policy not active");
         require(!policy.isSettled, "Policy already settled");
 
-        // if atraso > X horas -> transferir Y
         if (delayHours > thresholdHours) {
-            policy.isSettled = true; // Registro de quitação
+            policy.isSettled = true;
             payable(policy.passenger).transfer(payoutAmount);
             emit PayoutExecuted(flightNumber, policy.passenger, payoutAmount);
         }

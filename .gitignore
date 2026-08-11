@@ -1,31 +1,27 @@
-# Node modules
-/node_modules
+# Node dependencies
+node_modules/
+.npm/
 
-# Compilation output
-/dist
+# Hardhat files (Arquivos gerados automaticamente, não devem ir pro Git)
+cache/
+artifacts/
+typechain-types/
+coverage/
+coverage.json
 
-# pnpm deploy output
-/bundle
-
-# Hardhat Build Artifacts
-/artifacts
-
-# Hardhat compilation (v2) support directory
-/cache
-
-# Typechain output
-/types
-
-# Environment files
+# Arquivos de ambiente e chaves privadas
 .env
-.env.*
-!.env.example
+*.secret
 
-# Hardhat coverage reports
-/coverage
+# Logs
+*.log
+npm-debug.log*
 
-# Gas snapshot files
-/.gas-snapshot
+# Dados do Besu (Se o seu Docker gerar pastas pesadas de banco de dados do nó)
+Rede Besu/bc101-dev-env/nodes/*/data/
+Rede Besu/bc101-dev-env/nodes/*/caches/
 
-# Snapshot cheatcodes output
-/snapshots
+# OS files
+.DS_Store
+Thumbs.db
+node_modules
