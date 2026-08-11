@@ -1,7 +1,16 @@
-# Sample Hardhat 3 Project (minimal)
+# ✈️ Seguro Paramétrico de Voo - Guia de Execução
 
-This project has a minimal setup of Hardhat 3, without any plugins.
+Este repositório contém os contratos inteligentes e a interface frontend do projeto. Siga os passos abaixo para rodar a aplicação localmente.
 
-## What's included?
+## 1. Pré-requisitos
+* **Node.js** (Versão 22 ou superior recomendada).
+* **Git**.
 
-The project includes native support for TypeScript, Hardhat scripts, tasks, and support for Solidity compilation and tests.
+## 2. Instalação e Preparação
+Clone o repositório, instale as dependências (isso recriará a pasta `node_modules`) e compile o contrato inteligente (isso recriará a pasta `artifacts`).
+
+```bash
+git clone <URL_DO_SEU_REPOSITORIO>
+cd LAB04-Blockchain
+npm install
+npx hardhat compile

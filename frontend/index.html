@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seguro Paramétrico - Passageiro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; padding: 20px; }
+        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        h2 { color: #0056b3; text-align: center; }
+        .card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 20px; background: #fafafa; }
+        input { width: 95%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; }
+        button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #0056b3; }
+        .status { font-weight: bold; padding: 5px 10px; border-radius: 15px; background: #e0e0e0; }
+        .active { background: #d4edda; color: #155724; }
+        .settled { background: #cce5ff; color: #004085; }
+        #recibo { color: green; font-weight: bold; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>✈️ Painel do Passageiro</h2>
+    
+    <div class="card">
+        <h3>1. Contratar Seguro</h3>
+        <label>Endereço do Contrato:</label>
+        <input type="text" id="contractAddress" placeholder="Cole o 0x... gerado no terminal">
+        
+        <label>Número do Voo:</label>
+        <input type="text" id="flightNumber" value="LA8100">
+        
+        <button id="btnBuy">Contratar Seguro Automático</button>
+    </div>
+
+    <div class="card">
+        <h3>2. Status da Apólice</h3>
+        <button id="btnCheck">Atualizar Status</button>
+        <p>Voo: <span id="statusFlight" class="status">-</span></p>
+        <p>Seguro Ativo: <span id="statusActive" class="status">-</span></p>
+        <p>Indenização Paga: <span id="statusSettled" class="status">-</span></p>
+        <div id="recibo"></div>
+    </div>
+</div>
+
+<script>
+    // A identidade (ABI) das funções do seu contrato que o Front precisa conhecer
+    const contractABI = [
+        "function buyInsurance(string flightNumber) external",
+        "function policies(string) view returns (address passenger, bool isActive, bool isSettled)"
+    ];
+
+    // Chave privada da Conta 1 padrão do Hardhat (simulando a carteira do Passageiro)
+    const passengerPrivateKey = "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d";
+    
+    async function getContract() {
+        const address = document.getElementById('contractAddress').value;
+        if(!address) { alert("Cole o endereço do contrato primeiro!"); return null; }
+        
+        const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
+        const wallet = new ethers.Wallet(passengerPrivateKey, provider);
+        return new ethers.Contract(address, contractABI, wallet);
+    }
+
+    document.getElementById('btnBuy').onclick = async () => {
+        try {
+            const contract = await getContract();
+            if(!contract) return;
+            const voo = document.getElementById('flightNumber').value;
+            
+            document.getElementById('btnBuy').innerText = "Processando...";
+            const tx = await contract.buyInsurance(voo);
+            await tx.wait(); 
+            
+            alert("✅ Seguro registrado na Blockchain!");
+            document.getElementById('btnBuy').innerText = "Contratar Seguro Automático";
+        } catch (error) {
+            console.error(error);
+            alert("Erro! A blockchain local (Hardhat node) está rodando?");
+            document.getElementById('btnBuy').innerText = "Contratar Seguro Automático";
+        }
+    };
+
+    document.getElementById('btnCheck').onclick = async () => {
+        try {
+            const contract = await getContract();
+            if(!contract) return;
+            const voo = document.getElementById('flightNumber').value;
+            
+            const policy = await contract.policies(voo);
+            document.getElementById('statusFlight').innerText = voo;
+            
+            const isActive = policy[1];
+            const isSettled = policy[2];
+
+            const spanActive = document.getElementById('statusActive');
+            spanActive.innerText = isActive ? "SIM" : "NÃO";
+            spanActive.className = isActive ? "status active" : "status";
+
+            const spanSettled = document.getElementById('statusSettled');
+            spanSettled.innerText = isSettled ? "SIM" : "NÃO";
+            spanSettled.className = isSettled ? "status settled" : "status";
+
+            if (isSettled) {
+                document.getElementById('recibo').innerHTML = "🧾 Pagamento automático executado via Smart Contract.";
+            } else {
+                document.getElementById('recibo').innerHTML = "";
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Erro ao buscar dados na blockchain.");
+        }
+    };
+</script>
+</body>
+</html>
