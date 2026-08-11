@@ -1,43 +1,54 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  console.log("✈️ Iniciando Simulação do Seguro Paramétrico...\n");
+  console.log("✈️ --- DEMONSTRAÇÃO DO SEGURO PARAMÉTRICO DE VOO ---\n");
 
-  // Pegamos as contas padrão do Hardhat (que sempre existem e sempre têm saldo)
-  const [airline, passenger] = await ethers.getSigners();
+  const [airline, passenger1, passenger2] = await ethers.getSigners();
 
-  // 1. Deploy do Contrato (Limiar: 2 horas, Pagamento: 1 ETH)
+  // Parâmetros: Limiar de 2 horas de atraso, Indenização de 1.0 ETH por passageiro
+  const thresholdHours = 2;
   const payoutAmount = ethers.parseEther("1.0");
-  const Insurance = await ethers.getContractFactory("FlightInsurance");
-  const insurance = await Insurance.deploy(2, payoutAmount) as any;
-  await insurance.waitForDeployment();
-  
-  console.log(`✅ Contrato implantado em: ${await insurance.getAddress()}`);
 
-  // 2. Depósito do Escrow
+  // 1. Deploy do Contrato
+  const Insurance = await ethers.getContractFactory("FlightInsurance");
+  const insurance = (await Insurance.deploy(thresholdHours, payoutAmount)) as any;
+  await insurance.waitForDeployment();
+  const contractAddress = await insurance.getAddress();
+  console.log(`✅ Smart Contract implantado em: ${contractAddress}`);
+
+  // 2. Escrow: Companhia Aérea deposita 5.0 ETH no cofre
   const depositTx = await insurance.connect(airline).depositEscrow({ value: ethers.parseEther("5.0") });
   await depositTx.wait();
-  console.log("💰 Escrow depositado pela companhia aérea (5.0 ETH).");
+  console.log(`💰 Escrow ativado: Companhia Aérea depositou 5.0 ETH de garantia.\n`);
 
-  // 3. Compra do Seguro
+  // 3. Passageiros compram seguro para o voo LA8100
   const flightId = "LA8100";
-  const buyTx = await insurance.connect(passenger).buyInsurance(flightId);
-  await buyTx.wait();
-  console.log(`🎟️ Seguro registrado para o voo ${flightId} pelo passageiro: ${passenger.address}`);
-
-  // 4. Captura do saldo
-  const balanceBefore = await ethers.provider.getBalance(passenger.address);
   
-  // 5. Oráculo Simulando Atraso
-  console.log(`⏱️ Oráculo simulado reportando atraso de 3 horas para o voo ${flightId}...`);
+  const buyTx1 = await insurance.connect(passenger1).buyInsurance(flightId);
+  await buyTx1.wait();
+  console.log(`🎟️ Passageiro 1 (${passenger1.address}) adquiriu seguro para o voo ${flightId}`);
+
+  const buyTx2 = await insurance.connect(passenger2).buyInsurance(flightId);
+  await buyTx2.wait();
+  console.log(`🎟️ Passageiro 2 (${passenger2.address}) adquiriu seguro para o voo ${flightId}`);
+
+  // Saldo dos passageiros antes da indenização
+  const bal1Before = await ethers.provider.getBalance(passenger1.address);
+  const bal2Before = await ethers.provider.getBalance(passenger2.address);
+
+  // 4. Oráculo detecta e reporta atraso de 3 horas (3 >= 2)
+  console.log(`\n⏱️ [ORÁCULO] Detectado atraso de 3 horas no voo ${flightId} (Limiar contratual: ${thresholdHours}h)...`);
   const delayTx = await insurance.reportDelay(flightId, 3);
   await delayTx.wait();
 
-  // 6. Verificação Final
-  const balanceAfter = await ethers.provider.getBalance(passenger.address);
-  const difference = ethers.formatEther(balanceAfter - balanceBefore);
-  
-  console.log(`🏁 Pagamento executado! O saldo do passageiro aumentou em exatamente ${difference} ETH.\n`);
+  // Saldo dos passageiros depois do disparo paramétrico
+  const bal1After = await ethers.provider.getBalance(passenger1.address);
+  const bal2After = await ethers.provider.getBalance(passenger2.address);
+
+  console.log("\n🏁 --- RESULTADO DA EXECUÇÃO PARAMÉTRICA ---");
+  console.log(`✅ Termo de Quitação Registrado On-Chain: Voo ${flightId}`);
+  console.log(`💵 Indenização recebida pelo Passageiro 1: +${ethers.formatEther(bal1After - bal1Before)} ETH`);
+  console.log(`💵 Indenização recebida pelo Passageiro 2: +${ethers.formatEther(bal2After - bal2Before)} ETH\n`);
 }
 
 main().catch((error) => {
