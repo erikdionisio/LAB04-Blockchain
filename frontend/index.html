@@ -35,9 +35,8 @@
     
     <label>Selecione o Usuário Ativo:</label>
     <select id="passengerSelect">
-        <option value="0" data-address="0x70997970C51812dc3A010C7d01b50e0d17dc79C8">Passageiro 1 (Alice)</option>
-        <option value="1" data-address="0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC">Passageiro 2 (Bob)</option>
-        <option value="2" data-address="0x90F79bf6EB2c4f870365E785982E1f101E93b906">Passageiro 3 (Charlie)</option>
+        <option value="0" data-address="0x627306090abaB3A6e1400e9345bC60c78a8BEf57">Passageiro 1 (Conta 2 do TJPB)</option>
+        <option value="1" data-address="0xf17f52151EbEF6C7334FAD080c5704D77216b732">Passageiro 2 (Conta 3 do TJPB)</option>
     </select>
 
     <label>Número do Voo (Ex: LA8100):</label>
@@ -65,81 +64,6 @@
     <button class="btn-red" id="btnReport">Registrar Atraso na Blockchain</button>
 </div>
 
-<script>
-    const contractABI = [
-        "function buyInsurance(string flightNumber) external",
-        "function reportDelay(string flightNumber, uint256 delayHours) external",
-        "function isFlightSettled(string) view returns (bool)",
-        "function hasInsurance(string, address) view returns (bool)"
-    ];
-
-    // Chaves das contas locais do Hardhat
-    const oracleKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
-    const passengerKeys = [
-        "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d", // Alice (Conta 1)
-        "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a", // Bob (Conta 2)
-        "0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6"  // Charlie (Conta 3)
-    ];
-    
-    function getContract(privateKey) {
-        const address = document.getElementById('contractAddress').value.trim();
-        if(!address) { alert("Cole o endereço do contrato no topo da página!"); return null; }
-        const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
-        return new ethers.Contract(address, contractABI, new ethers.Wallet(privateKey, provider));
-    }
-
-    // Ação do Passageiro: Comprar
-    document.getElementById('btnBuy').onclick = async () => {
-        const selectedIndex = document.getElementById('passengerSelect').value;
-        const contract = getContract(passengerKeys[selectedIndex]);
-        if(!contract) return;
-        try {
-            document.getElementById('btnBuy').innerText = "Processando...";
-            const tx = await contract.buyInsurance(document.getElementById('flightPassenger').value.trim());
-            await tx.wait(); 
-            alert("✅ Seguro contratado! Usuário ativo protegido.");
-        } catch(e) { alert("Erro! Voo já indenizado ou usuário já possui seguro ativo."); }
-        document.getElementById('btnBuy').innerText = "Contratar Seguro Paramétrico";
-    };
-
-    // Ação do Oráculo: Reportar Atraso
-    document.getElementById('btnReport').onclick = async () => {
-        const contract = getContract(oracleKey);
-        if(!contract) return;
-        const delay = document.getElementById('delayInput').value;
-        if(!delay) return alert("Digite as horas de atraso!");
-        
-        try {
-            document.getElementById('btnReport').innerText = "Enviando à Blockchain...";
-            const tx = await contract.reportDelay(document.getElementById('flightOracle').value.trim(), delay);
-            await tx.wait(); 
-            alert("📡 Atraso registrado! Indenizações disparadas aos passageiros cadastrados.");
-        } catch(e) { alert("Erro! Voo não existe ou já foi liquidado."); }
-        document.getElementById('btnReport').innerText = "Registrar Atraso na Blockchain";
-    };
-
-    // Ação do Passageiro: Consultar
-    document.getElementById('btnCheck').onclick = async () => {
-        const selectedIndex = document.getElementById('passengerSelect').value;
-        const contract = getContract(passengerKeys[selectedIndex]);
-        if(!contract) return;
-        
-        const voo = document.getElementById('flightPassenger').value.trim();
-        const isSettled = await contract.isFlightSettled(voo);
-        
-        // Pega o endereço público da opção selecionada no HTML
-        const selectElement = document.getElementById('passengerSelect');
-        const currentAddress = selectElement.options[selectElement.selectedIndex].getAttribute('data-address');
-        const hasIns = await contract.hasInsurance(voo, currentAddress);
-
-        document.getElementById('statusActive').innerText = hasIns ? "SIM" : "NÃO";
-        document.getElementById('statusActive').className = hasIns ? "badge active" : "badge";
-        document.getElementById('statusSettled').innerText = isSettled ? "SIM (Indenizado)" : "NÃO";
-        document.getElementById('statusSettled').className = isSettled ? "badge settled" : "badge";
-
-        document.getElementById('receiptBox').innerHTML = (isSettled && hasIns) ? 
-            `<div class="receipt"><strong>🧾 Termo de Quitação Emitido On-Chain</strong><br>A indenização de 1 ETH foi liquidada. Validade jurídica para extinção de litígio no TJPB garantida para esta carteira.</div>` : "";
-    };
-</script>
+<script src="app.js"></script>
 </body>
 </html>
