@@ -1,16 +1,13 @@
 # Node dependencies
 
-
 # Hardhat files (Arquivos gerados automaticamente, não devem ir pro Git)
 
 # Arquivos de ambiente e chaves privadas
-
 
 # Logs
 *.log
 npm-debug.log*
 
 # Dados do Besu (Se o seu Docker gerar pastas pesadas de banco de dados do nó)
-
 
 # OS files
