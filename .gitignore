@@ -1,6 +1,4 @@
 # Node dependencies
-node_modules/
-.npm/
 
 # Hardhat files (Arquivos gerados automaticamente, não devem ir pro Git)
 cache/
