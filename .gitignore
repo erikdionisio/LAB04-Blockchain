@@ -18,8 +18,7 @@ coverage.json
 npm-debug.log*
 
 # Dados do Besu (Se o seu Docker gerar pastas pesadas de banco de dados do nó)
-Rede Besu/bc101-dev-env/nodes/*/data/
-Rede Besu/bc101-dev-env/nodes/*/caches/
+
 
 # OS files
 .DS_Store
