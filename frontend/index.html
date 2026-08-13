@@ -3,116 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seguro Paramétrico - Passageiro</title>
+    <title>AcordoInstant - TJPB</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; padding: 20px; }
-        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
-        h2 { color: #0056b3; text-align: center; }
-        .card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 20px; background: #fafafa; }
-        input { width: 95%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; }
-        button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        button:hover { background-color: #0056b3; }
-        .status { font-weight: bold; padding: 5px 10px; border-radius: 15px; background: #e0e0e0; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; padding: 20px; gap: 20px; flex-wrap: wrap; }
+        .container { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h2 { color: #004085; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+        label { font-weight: bold; font-size: 13px; color: #555; display: block; margin-top: 10px; }
+        input, select { width: 93%; padding: 10px; margin-top: 5px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        select { width: 98.5%; cursor: pointer; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 14px; margin-top: 10px; color: white;}
+        .btn-blue { background-color: #007bff; } .btn-blue:hover { background-color: #0056b3; }
+        .btn-red { background-color: #dc3545; } .btn-red:hover { background-color: #c82333; }
+        .badge { font-weight: bold; padding: 4px 10px; border-radius: 12px; font-size: 13px; background: #e0e0e0; }
         .active { background: #d4edda; color: #155724; }
         .settled { background: #cce5ff; color: #004085; }
-        #recibo { color: green; font-weight: bold; margin-top: 15px; }
+        .receipt { margin-top: 15px; padding: 12px; border-left: 4px solid #28a745; background: #e9f7ef; font-size: 13px; color: #155724; }
+        .header-box { width: 100%; max-width: 820px; background: #004085; color: white; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: -10px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>✈️ Painel do Passageiro</h2>
-    
-    <div class="card">
-        <h3>1. Contratar Seguro</h3>
-        <label>Endereço do Contrato:</label>
-        <input type="text" id="contractAddress" placeholder="Cole o 0x... gerado no terminal">
-        
-        <label>Número do Voo:</label>
-        <input type="text" id="flightNumber" value="LA8100">
-        
-        <button id="btnBuy">Contratar Seguro Automático</button>
-    </div>
+<div class="header-box">
+    <h2>✈️ AcordoInstant - Prova de Conceito</h2>
+    <p style="font-size: 14px; margin: 0;">Cole o endereço do contrato abaixo para conectar os dois painéis:</p>
+    <input type="text" id="contractAddress" placeholder="Ex: 0x5FbDB2315678afecb367f032d93F642f64180aa3" style="width: 80%; text-align: center; margin-top: 10px;">
+</div>
 
-    <div class="card">
-        <h3>2. Status da Apólice</h3>
-        <button id="btnCheck">Atualizar Status</button>
-        <p>Voo: <span id="statusFlight" class="status">-</span></p>
-        <p>Seguro Ativo: <span id="statusActive" class="status">-</span></p>
-        <p>Indenização Paga: <span id="statusSettled" class="status">-</span></p>
-        <div id="recibo"></div>
+<div class="container">
+    <h2>📱 App do Passageiro</h2>
+    
+    <label>Selecione o Usuário Ativo:</label>
+    <select id="passengerSelect">
+        <option value="0" data-address="0x627306090abaB3A6e1400e9345bC60c78a8BEf57">Passageiro 1 (Conta 2 do TJPB)</option>
+        <option value="1" data-address="0xf17f52151EbEF6C7334FAD080c5704D77216b732">Passageiro 2 (Conta 3 do TJPB)</option>
+    </select>
+
+    <label>Número do Voo (Ex: LA8100):</label>
+    <input type="text" id="flightPassenger" value="LA8100">
+    <button class="btn-blue" id="btnBuy">Contratar Seguro Paramétrico</button>
+
+    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
+        <button class="btn-blue" id="btnCheck" style="background-color: #6c757d;">Consultar Status do Usuário Atual</button>
+        <p style="margin-top: 15px;">Seguro Ativo: <span id="statusActive" class="badge">-</span></p>
+        <p>Quitação Emitida: <span id="statusSettled" class="badge">-</span></p>
+        <div id="receiptBox"></div>
     </div>
 </div>
 
-<script>
-    // A identidade (ABI) das funções do seu contrato que o Front precisa conhecer
-    const contractABI = [
-        "function buyInsurance(string flightNumber) external",
-        "function policies(string) view returns (address passenger, bool isActive, bool isSettled)"
-    ];
-
-    // Chave privada da Conta 1 padrão do Hardhat (simulando a carteira do Passageiro)
-    const passengerPrivateKey = "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d";
+<div class="container" style="border: 2px solid #dc3545;">
+    <h2 style="color: #dc3545;">📡 Simulador do Oráculo</h2>
+    <p style="font-size: 13px; color: #666; text-align: justify;">Este painel simula a API oficial alimentando a blockchain. Se o atraso for >= 2 horas, o contrato dispara a indenização em lote.</p>
     
-    async function getContract() {
-        const address = document.getElementById('contractAddress').value;
-        if(!address) { alert("Cole o endereço do contrato primeiro!"); return null; }
-        
-        const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
-        const wallet = new ethers.Wallet(passengerPrivateKey, provider);
-        return new ethers.Contract(address, contractABI, wallet);
-    }
+    <label>Voo a ser auditado:</label>
+    <input type="text" id="flightOracle" value="LA8100">
+    
+    <label>Tempo de Atraso Registrado (em Horas):</label>
+    <input type="number" id="delayInput" placeholder="Ex: 3">
+    
+    <button class="btn-red" id="btnReport">Registrar Atraso na Blockchain</button>
+</div>
 
-    document.getElementById('btnBuy').onclick = async () => {
-        try {
-            const contract = await getContract();
-            if(!contract) return;
-            const voo = document.getElementById('flightNumber').value;
-            
-            document.getElementById('btnBuy').innerText = "Processando...";
-            const tx = await contract.buyInsurance(voo);
-            await tx.wait(); 
-            
-            alert("✅ Seguro registrado na Blockchain!");
-            document.getElementById('btnBuy').innerText = "Contratar Seguro Automático";
-        } catch (error) {
-            console.error(error);
-            alert("Erro! A blockchain local (Hardhat node) está rodando?");
-            document.getElementById('btnBuy').innerText = "Contratar Seguro Automático";
-        }
-    };
-
-    document.getElementById('btnCheck').onclick = async () => {
-        try {
-            const contract = await getContract();
-            if(!contract) return;
-            const voo = document.getElementById('flightNumber').value;
-            
-            const policy = await contract.policies(voo);
-            document.getElementById('statusFlight').innerText = voo;
-            
-            const isActive = policy[1];
-            const isSettled = policy[2];
-
-            const spanActive = document.getElementById('statusActive');
-            spanActive.innerText = isActive ? "SIM" : "NÃO";
-            spanActive.className = isActive ? "status active" : "status";
-
-            const spanSettled = document.getElementById('statusSettled');
-            spanSettled.innerText = isSettled ? "SIM" : "NÃO";
-            spanSettled.className = isSettled ? "status settled" : "status";
-
-            if (isSettled) {
-                document.getElementById('recibo').innerHTML = "🧾 Pagamento automático executado via Smart Contract.";
-            } else {
-                document.getElementById('recibo').innerHTML = "";
-            }
-        } catch (error) {
-            console.error(error);
-            alert("Erro ao buscar dados na blockchain.");
-        }
-    };
-</script>
+<script src="app.js"></script>
 </body>
 </html>
