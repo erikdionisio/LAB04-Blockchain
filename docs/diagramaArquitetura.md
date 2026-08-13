@@ -1,27 +1,25 @@
-# Diagrama de Arquitetura e Fluxo do Sistema
-
-sequenceDiagram
-    autonumber
-    actor Companhia as Companhia Aérea
-    actor Passageiro as Passageiro
-    actor Oraculo as Oráculo (ANAC/FlightStats)
-    participant Contrato as Smart Contract (FlightInsurance)
-
-    Note over Companhia, Contrato: 1. Implantação e Garantia (Escrow)
-    Companhia->>Contrato: Deploy do Contrato (limiar, valor indenização)
-    Companhia->>Contrato: depositEscrow() (Depósito de fundos em ETH)
-
-    Note over Passageiro, Contrato: 2. Contratação
-    Passageiro->>Contrato: buyInsurance("LA8100")
-    Contrato-->>Passageiro: Evento InsurancePurchased emitido
-
-    Note over Oraculo, Contrato: 3. Gatilho Paramétrico
-    Oraculo->>Contrato: reportDelay("LA8100", 3 horas)
-    
-    alt Atraso > Limiar Contratual
-        Contrato->>Contrato: Define policy.isSettled = true (Termo de Quitação)
-        Contrato->>Passageiro: Transferência Automática da Indenização (payoutAmount)
-        Contrato-->>Passageiro: Evento PayoutExecuted emitido (Recibo On-Chain)
-    else Atraso <= Limiar
-        Contrato->>Contrato: Nenhuma ação financeira executada
+graph TD
+    subgraph "Frontend (Interface do Usuário)"
+        UI[Navegador Web - HTML/CSS]
+        AppJS[app.js - Lógica e Ethers.js]
     end
+
+    subgraph "Rede Hyperledger Besu (Docker)"
+        RPC[Nó RPC - http://127.0.0.1:8545]
+        EVM[(EVM - Smart Contract AcordoInstant)]
+    end
+
+    Passageiro((Passageiro)) -->|1. Compra Seguro| UI
+    Oraculo((Oráculo/ANAC)) -->|3. Reporta Atraso| UI
+    
+    UI <--> AppJS
+    AppJS <-->|Conexão JSON-RPC| RPC
+    RPC <--> EVM
+
+    EVM -.->|2. Trava Escrow & Apólice| EVM
+    EVM -.->|4. Indenização & Termo de Quitação| Passageiro
+    
+    style UI fill:#e9ecef,stroke:#333
+    style AppJS fill:#cfe2ff,stroke:#084298
+    style RPC fill:#d1e7dd,stroke:#0f5132
+    style EVM fill:#fff3cd,stroke:#664d03
