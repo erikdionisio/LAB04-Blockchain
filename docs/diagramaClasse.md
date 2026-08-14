@@ -1,3 +1,4 @@
+```mermaid
 classDiagram
     class FlightInsurance {
         +address airline
@@ -18,3 +19,4 @@ classDiagram
     }
 
     FlightInsurance "1" *-- "*" Policy : gerencia
+```
