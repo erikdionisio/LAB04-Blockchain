@@ -28,7 +28,8 @@ npm install
 
 ### Passo 3: Iniciando a Rede Blockchain Local (Docker)
 
-Antes de compilar o código ou interagir com os contratos, é fundamental que a rede local esteja em execução. Inicie a rede utilizando o Docker com o comando:
+Antes de compilar o código ou interagir com os contratos, é fundamental que a rede local besu
+esteja em execução. Inicie a rede utilizando o Docker com o comando:
 
 Bash
 docker compose up -d

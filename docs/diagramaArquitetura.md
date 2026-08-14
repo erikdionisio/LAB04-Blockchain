@@ -1,3 +1,4 @@
+```mermaid
 graph TD
     subgraph "Frontend (Interface do Usuário)"
         UI[Navegador Web - HTML/CSS]
@@ -5,7 +6,7 @@ graph TD
     end
 
     subgraph "Rede Hyperledger Besu (Docker)"
-        RPC[Nó RPC - http://127.0.0.1:8545]
+        RPC["Nó RPC - [http://127.0.0.1:8545](http://127.0.0.1:8545)"]
         EVM[(EVM - Smart Contract AcordoInstant)]
     end
 
